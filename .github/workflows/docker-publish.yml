@@ -58,8 +58,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}:latest
-            ${{ env.REGISTRY }}:${{ github.ref_name }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
           build-args: |
             OTS_VERSION=${{ github.ref_name }}
           labels: ${{ steps.meta.outputs.labels }}
