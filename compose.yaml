@@ -1,0 +1,46 @@
+---
+services:
+  ots:
+    image: ots:latest
+    build:
+      context: .
+      args:
+        - OTS_VERSION=1.1.5
+      tags:
+        - ots:latest
+        - ots:1.1.5
+    container_name: ots
+    hostname: ots
+    restart: unless-stopped
+    ports:
+      - 0.0.0.0:8081:8081 # OTS listens on this port on the loopback interface for HTTP(S) requests
+      - 0.0.0.0:8088:8088 # TCP CoT streaming port
+      - 0.0.0.0:8089:8089 # SSL CoT streaming port
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "./persistent/ots:/app/ots"
+    #environment:
+    #  OTS_RABBITMQ_SERVER_ADDRESS: rabbitmq
+    tty: true
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: unless-stopped
+    ports:
+      - 0.0.0.0:1883:1883 # MQTT
+      - 0.0.0.0:8883:8883 # MQTT with TLS
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "./persistent/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro"
+      - "./persistent/rabbitmq/99-ots.conf:/etc/rabbitmq/conf.d/99-ots.conf:ro"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
