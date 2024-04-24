@@ -2,7 +2,6 @@ name: Build OpenTakServer Docker image
 
 on:
   push:
-    branches: [ "main" ]
     # Publish semver tags as releases.
     tags: [ '*.*.*' ]
 
@@ -11,8 +10,6 @@ env:
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
-
-  RELEASE_VERSION: ${GITHUB_REF#refs/*/}
 
 jobs:
   build:
