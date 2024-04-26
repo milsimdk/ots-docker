@@ -1,20 +1,13 @@
 ---
 services:
-  ots:
-    image: ots:latest
-    build:
-      context: .
-      args:
-        - OTS_VERSION=1.1.5
-      tags:
-        - ots:latest
-        - ots:1.1.5
-    container_name: ots
-    hostname: ots
+  opentakserver:
+    image: ghcr.io/milsimdk/ots-docker-image:latest
+    container_name: opentakserver
+    hostname: opentakserver
     restart: unless-stopped
     ports:
-      - 0.0.0.0:8081:8081 # OTS listens on this port on the loopback interface for HTTP(S) requests
-      - 0.0.0.0:8088:8088 # TCP CoT streaming port
+    # - 0.0.0.0:8081:8081 # OTS listens on this port on the loopback interface for HTTP(S) requests
+    # - 0.0.0.0:8088:8088 # TCP CoT streaming port
       - 0.0.0.0:8089:8089 # SSL CoT streaming port
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
@@ -26,18 +19,42 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  nginx:
+    build:
+      context: .
+      dockerfile: persistent/nginx/Dockerfile
+    container_name: nginx
+    hostname: nginx
+    restart: unless-stopped
+    ports:
+      - 0.0.0.0:443:443 # Web UI
+      - 0.0.0.0:8443:8443 # HTTPS API requests to OpenTAKServer port 8081
+      - 0.0.0.0:8446:8446 # Proxy for certificate enrollment to OpenTAKServer port 8081
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "./persistent/ots/ca:/app/ots/ca:ro"
+    depends_on:
+      - opentakserver
+    healthcheck:
+      test: curl -k -I -A 'Docker-healthcheck' --fail https://localhost/health || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
   rabbitmq:
     image: rabbitmq:latest
     container_name: rabbitmq
     hostname: rabbitmq
     restart: unless-stopped
-    ports:
-      - 0.0.0.0:1883:1883 # MQTT
-      - 0.0.0.0:8883:8883 # MQTT with TLS
+    # ports:
+    #  - 0.0.0.0:1883:1883 # MQTT
+    #  - 0.0.0.0:8883:8883 # MQTT with TLS
+    #  - 0.0.0.0:25672:25672 # RabbitMQ Federation, external access should be blocked in most cases
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
-      - "./persistent/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro"
-      - "./persistent/rabbitmq/99-ots.conf:/etc/rabbitmq/conf.d/99-ots.conf:ro"
+     # - "./persistent/ots/ca:/app/ots/ca:ro"
+     # - "./persistent/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro"
+     # - "./persistent/rabbitmq/99-opentakserver.conf:/etc/rabbitmq/conf.d/99-opentakserver.conf:ro"
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s

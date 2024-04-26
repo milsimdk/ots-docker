@@ -14,6 +14,6 @@ trim_trailing_whitespace = false
 [*.{yml,yaml,j2}]
 indent_size = 2
 
-[makefile]
+[Makefile]
 indent_size = 4
 indent_style = tab

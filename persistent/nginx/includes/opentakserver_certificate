@@ -1,0 +1,6 @@
+# CA
+ssl_client_certificate  /app/ots/ca/ca.pem;
+
+# OpenTakServer Cert
+ssl_certificate         /app/ots/ca/certs/opentakserver/opentakserver.pem;
+ssl_certificate_key     /app/ots/ca/certs/opentakserver/opentakserver.nopass.key;
