@@ -22,4 +22,4 @@ restart: ## Restart OpenTAKServer
 	docker compose restart ots
 
 logs: ## Logs for OpenTAKServer
-	docker compose logs -f --tail=100 ots
+	docker compose logs -f --tail=100
