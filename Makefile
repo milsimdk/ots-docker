@@ -19,7 +19,7 @@ down: ## Stop OpenTAKServer
 	docker compose stop
 
 restart: ## Restart OpenTAKServer
-	docker compose restart ots
+	docker compose restart opentakserver
 
 logs: ## Logs for OpenTAKServer
 	docker compose logs -f --tail=100

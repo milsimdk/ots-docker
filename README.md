@@ -29,7 +29,9 @@ make up
 
 # Restart OTS
 make restart
-# Wait and chack logs
+# Wait...
+
+# Check logs
 make logs
 ```
 
