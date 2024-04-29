@@ -1,41 +1,16 @@
 ## *****************************************************************
 # NOT READY FOR PRODUCTION YET
-
-### Settings that MUST be changed to the following!!
-```yaml
-OTS_LISTENER_ADDRESS: 0.0.0.0
-OTS_RABBITMQ_SERVER_ADDRESS: rabbitmq
-```
-
-Go support environment variables
-https://github.com/brian7704/OpenTAKServer/issues/28
-
 ## *****************************************************************
 
 #### First boot
 ```shell
 make up
 
-# Wait this everything is up
-# [+] Running 3/3
-# ✔ Container rabbitmq       Healthy                                                                                                                                                                                                                                                                                                                                6.5s 
-# ✔ Container opentakserver  Started                                                                                                                                                                                                                                                                                                                                0.5s 
-# ✔ Container nginx          Started   
-
-# Change there's options in persistent/ots/config.yml
-# vim persistent/ots/config.yml
-# OTS_LISTENER_ADDRESS: 0.0.0.0
-# OTS_RABBITMQ_SERVER_ADDRESS: rabbitmq
-
-# Restart OTS
-make restart
-# Wait...
-
 # Check logs
 make logs
 ```
 
-Webgui should be on https://localhost
+WebUI is available on https://localhost
 
 
 # Docker setup for OpenTAKServer
@@ -62,15 +37,6 @@ https://github.com/brian7704/OpenTAKServer
 ```shell
 # Show help
 make
-
-# Start OpenTAKServer
-make up
-
-# Stop Start OpenTAKServer
-make down
-
-# See logs
-make logs
 ```
 
 ### Thanks

@@ -12,8 +12,6 @@ services:
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "./persistent/ots:/app/ots"
-    #environment:
-    #  OTS_RABBITMQ_SERVER_ADDRESS: rabbitmq
     tty: true
     depends_on:
       rabbitmq:
@@ -23,6 +21,9 @@ services:
     build:
       context: .
       dockerfile: persistent/nginx/Dockerfile
+      #args:
+      #  - OTS_ADDRESS=opentakserver
+      #  - OTS_LISTENER_PORT=8081
     container_name: nginx
     hostname: nginx
     restart: unless-stopped
