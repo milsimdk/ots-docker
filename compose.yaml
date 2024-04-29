@@ -6,8 +6,8 @@ services:
     hostname: opentakserver
     restart: unless-stopped
     ports:
-    # - 0.0.0.0:8081:8081 # OTS listens on this port on the loopback interface for HTTP(S) requests
-    # - 0.0.0.0:8088:8088 # TCP CoT streaming port
+      - 0.0.0.0:8081:8081 # OTS listens on this port on the loopback interface for HTTP(S) requests
+      - 0.0.0.0:8088:8088 # TCP CoT streaming port
       - 0.0.0.0:8089:8089 # SSL CoT streaming port
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
@@ -17,19 +17,31 @@ services:
       rabbitmq:
         condition: service_healthy
 
-  nginx:
+  opentakserver-webui:
+    image: opentakserver-ui:latest
+    container_name: opentakserver-webui
+    hostname: opentakserver-webui
+    restart: unless-stopped
+    healthcheck:
+      test: curl -k -I -A 'Docker-healthcheck' --fail https://localhost/ || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  nginx-proxy:
     build:
       context: .
       dockerfile: persistent/nginx/Dockerfile
-      #args:
-      #  - OTS_ADDRESS=opentakserver
-      #  - OTS_LISTENER_PORT=8081
-    container_name: nginx
-    hostname: nginx
+    container_name: nginx-proxy
+    hostname: nginx-proxy
     restart: unless-stopped
     ports:
-      - 0.0.0.0:443:443 # Web UI
+      - 0.0.0.0:80:80 # HTTP Web UI
+      - 0.0.0.0:443:443 # HTTPS Web UI
+
+      - 0.0.0.0:8080:8080 # HTTP API requests to OpenTAKServer port 8081
       - 0.0.0.0:8443:8443 # HTTPS API requests to OpenTAKServer port 8081
+
       - 0.0.0.0:8446:8446 # Proxy for certificate enrollment to OpenTAKServer port 8081
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
@@ -53,6 +65,7 @@ services:
     #  - 0.0.0.0:25672:25672 # RabbitMQ Federation, external access should be blocked in most cases
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
+     # - "./persistent/rabbitmq/data:/var/lib/rabbitmq/:rw"
      # - "./persistent/ots/ca:/app/ots/ca:ro"
      # - "./persistent/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro"
      # - "./persistent/rabbitmq/99-opentakserver.conf:/etc/rabbitmq/conf.d/99-opentakserver.conf:ro"

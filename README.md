@@ -6,6 +6,23 @@
 ```shell
 make up
 
+# Wait this everything is up
+# docker compose up -d
+# [+] Running 5/5
+# Network ots-docker_default     Created    0.0s 
+# Container rabbitmq             Healthy    0.0s 
+# Container opentakserver-webui  Started    0.0s 
+# Container opentakserver        Started    0.0s 
+# Container nginx-proxy          Started    0.0s
+
+# Change these options in persistent/ots/config.yml
+# vim persistent/ots/config.yml
+# OTS_LISTENER_ADDRESS: 0.0.0.0
+# OTS_RABBITMQ_SERVER_ADDRESS: rabbitmq
+
+# Restart OTS
+make restart
+
 # Check logs
 make logs
 ```
@@ -32,6 +49,7 @@ https://github.com/brian7704/OpenTAKServer
 
 ##### Custom OpenTakServer docker images used
  - [OpenTakServer](https://github.com/milsimdk/ots-docker-image/pkgs/container/ots-docker-image)
+ - [OpenTakServer-WebUI](https://github.com/milsimdk/ots-ui-docker-image/pkgs/container/ots-ui-docker-image)
 
 # How to use the MakeFile
 ```shell

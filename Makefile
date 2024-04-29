@@ -23,3 +23,8 @@ restart: ## Restart OpenTAKServer
 
 logs: ## Logs for OpenTAKServer
 	docker compose logs -f --tail=100
+
+push:
+	git add .
+	git commit -m'Working-in-progress'
+	git push
