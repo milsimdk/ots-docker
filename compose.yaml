@@ -1,7 +1,7 @@
 ---
 services:
   opentakserver:
-    image: ghcr.io/milsimdk/ots-docker-image:latest
+    image: docker pull ghcr.io/milsimdk/ots-ui-docker-image:latest
     container_name: opentakserver
     hostname: opentakserver
     restart: unless-stopped

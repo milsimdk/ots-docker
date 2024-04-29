@@ -3,7 +3,7 @@
 ## *****************************************************************
 
 #### First boot
-```shell
+```Shell
 make up
 
 # Wait this everything is up
