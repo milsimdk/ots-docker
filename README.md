@@ -21,9 +21,19 @@ make logs
 WebUI is available on https://localhost
 
 ## Problems you can have
+- [Got permission denied while trying to connect to the Docker daemon socket](#docker-daemon-socket-denied)
+- [Folder permissions](#folder-permissions)
+
+### Docker daemon socket denied
+```shell
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+### Folder permissions
 If you get a `Permission denied` error it might because of folder permissions \
 The opentakserver has an internal user with PID/GID of 1000 \
-To fix it, either do `chmod -R 0777 persistent` or create a user with the PID/GID of 1000
+To fix it, either do `chmod -R 0777 persistent` or create a user with the PID/GID of 1000 \
 Check if a user exists with `id 1000`
 
 #### Check if a user with ID 1000 exists
@@ -39,7 +49,8 @@ sudo groupadd -g 1000 -r ots
 sudo useradd -u 1000 -g 1000 -m ots
 sudo usermod -aG docker ots
 # You can also add your own user to the docker group
-#sudo usermod -aG docker $USER
+# sudo usermod -aG docker $USER
+# newgrp docker
 
 # cd to the ots-docker folder
 sudo chown -R 1000:1000 persistent
@@ -55,6 +66,7 @@ sudo chmod -R 0777 persistent
 ```shell
 # Add user to docker group
 sudo usermod -aG docker $USER
+newgrp docker
 
 # Get repos needed
 git clone git@github.com:milsimdk/ots-docker.git /opt/ots-docker
