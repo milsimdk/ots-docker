@@ -3,3 +3,4 @@
 .secrets
 event.json
 docs
+compose.override.yaml
