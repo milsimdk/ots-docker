@@ -6,7 +6,7 @@ Docker setup for [OpenTAKServer](https://github.com/brian7704/OpenTAKServer) (OT
 ### NOT READY FOR PRODUCTION YET
 ### *****************************************************************
 
-### First boot
+## First boot
 ```Shell
 # Download / Pull
 git clone git@github.com:milsimdk/ots-docker.git && cd ots-docker
@@ -20,7 +20,7 @@ make logs
 
 WebUI is available on https://localhost
 
-### Problems you can have
+## Problems you can have
 If you get a `Permission denied` error it might because of folder permissions \
 The opentakserver has an internal user with PID/GID of 1000 \
 To fix it, either do `chmod -R 0777 persistent` or create a user with the PID/GID of 1000
@@ -91,7 +91,7 @@ docker compose up -d
 docker compose logs -f
 ```
 
-### Config changes 
+## Config changes 
 You can change config options by using 'environment' in the compose.override.yaml file \
 Options name must have the prefix `DOCKER_` or else they are ignored! \
 You can overwrite all settings this way so watch out!!!
@@ -121,5 +121,5 @@ It's also possible to just change them in the `persistent/ots/config.yml` file
 make
 ```
 
-### Thanks
+## Thanks
   - [Brian](https://github.com/brian7704) for creating [OpenTAKServer](https://github.com/brian7704/OpenTAKServer)
