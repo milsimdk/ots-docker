@@ -1,1 +1,1 @@
-[rabbitmq_mqtt].
+[rabbitmq_mqtt,rabbitmq_auth_backend_http].

@@ -1,32 +1,42 @@
 ---
 services:
   opentakserver:
-    image: docker pull ghcr.io/milsimdk/ots-ui-docker-image:latest
+    #image: ghcr.io/milsimdk/ots-docker-image:latest
+    image: opentakserver:latest
     container_name: opentakserver
     hostname: opentakserver
     restart: unless-stopped
     ports:
-      - 0.0.0.0:8081:8081 # OTS listens on this port on the loopback interface for HTTP(S) requests
+      - 127.0.0.1:8081:8081 # OTS listens on this port on the loopback interface for HTTP(S) requests
       - 0.0.0.0:8088:8088 # TCP CoT streaming port
       - 0.0.0.0:8089:8089 # SSL CoT streaming port
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "./persistent/ots:/app/ots"
+    environment:
+      - DOCKER_DEBUG=false
+
+      - DOCKER_OTS_CA_NAME=MilsimDK-CA
+      - DOCKER_OTS_CA_COUNTRY=DK
+      - DOCKER_OTS_CA_STATE=EU
+      - DOCKER_OTS_CA_CITY=Larp City
+      - DOCKER_OTS_CA_ORGANIZATION=MilsimDK
+      - DOCKER_OTS_CA_ORGANIZATIONAL_UNIT=IT
+
+      - DOCKER_OTS_MEDIAMTX_ENABLE=false
+      - DOCKER_OTS_ENABLE_MESHTASTIC=false
     tty: true
     depends_on:
       rabbitmq:
         condition: service_healthy
 
   opentakserver-webui:
-    image: opentakserver-ui:latest
+    image: ghcr.io/milsimdk/ots-ui-docker-image:latest
     container_name: opentakserver-webui
     hostname: opentakserver-webui
     restart: unless-stopped
-    healthcheck:
-      test: curl -k -I -A 'Docker-healthcheck' --fail https://localhost/ || exit 1
-      interval: 30s
-      timeout: 30s
-      retries: 3
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
 
   nginx-proxy:
     build:
@@ -41,34 +51,28 @@ services:
 
       - 0.0.0.0:8080:8080 # HTTP API requests to OpenTAKServer port 8081
       - 0.0.0.0:8443:8443 # HTTPS API requests to OpenTAKServer port 8081
-
       - 0.0.0.0:8446:8446 # Proxy for certificate enrollment to OpenTAKServer port 8081
+
+      - 0.0.0.0:8883:8883 # Proxy for MQTT / Meshtastic to Rabbitmq port 1883
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "./persistent/ots/ca:/app/ots/ca:ro"
     depends_on:
-      - opentakserver
-    healthcheck:
-      test: curl -k -I -A 'Docker-healthcheck' --fail https://localhost/health || exit 1
-      interval: 30s
-      timeout: 30s
-      retries: 3
+      opentakserver:
+        condition: service_started
+      opentakserver-webui:
+        condition: service_healthy
 
   rabbitmq:
     image: rabbitmq:latest
     container_name: rabbitmq
     hostname: rabbitmq
     restart: unless-stopped
-    # ports:
-    #  - 0.0.0.0:1883:1883 # MQTT
-    #  - 0.0.0.0:8883:8883 # MQTT with TLS
-    #  - 0.0.0.0:25672:25672 # RabbitMQ Federation, external access should be blocked in most cases
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
+      - "./persistent/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro"
+      - "./persistent/rabbitmq/99-opentakserver.conf:/etc/rabbitmq/conf.d/99-opentakserver.conf:ro"
      # - "./persistent/rabbitmq/data:/var/lib/rabbitmq/:rw"
-     # - "./persistent/ots/ca:/app/ots/ca:ro"
-     # - "./persistent/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro"
-     # - "./persistent/rabbitmq/99-opentakserver.conf:/etc/rabbitmq/conf.d/99-opentakserver.conf:ro"
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 30s

@@ -8,15 +8,14 @@ help: ## This help.
 
 .DEFAULT_GOAL := help
 
-### Vault
-act: ## Run act with version tag
-	act -e event.json
-
 up: ## Start OpenTAKServer
 	docker compose up -d
 
-down: ## Stop OpenTAKServer
+stop: ## Stop OpenTAKServer
 	docker compose stop
+
+down: ## Stop OpenTAKServer
+	docker compose down
 
 restart: ## Restart OpenTAKServer
 	docker compose restart opentakserver
@@ -28,3 +27,6 @@ push:
 	git add .
 	git commit -m'Working-in-progress'
 	git push
+
+dev-clean:
+	@find ./persistent/ots/ ! -name ".gitignore" -delete;
