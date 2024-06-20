@@ -1,8 +1,8 @@
 ---
 services:
   opentakserver:
-    #image: ghcr.io/milsimdk/ots-docker-image:latest
-    image: opentakserver:latest
+    image: ghcr.io/milsimdk/ots-docker-image:latest
+    #image: opentakserver:latest
     container_name: opentakserver
     hostname: opentakserver
     restart: unless-stopped
@@ -32,6 +32,7 @@ services:
 
   opentakserver-webui:
     image: ghcr.io/milsimdk/ots-ui-docker-image:latest
+    #image: opentakserver-webui:latest
     container_name: opentakserver-webui
     hostname: opentakserver-webui
     restart: unless-stopped
@@ -57,6 +58,12 @@ services:
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "./persistent/ots/ca:/app/ots/ca:ro"
+      - "./persistent/nginx/templates:/etc/nginx/templates:ro"
+    #environment:
+      #- OTS_ADDRESS=opentakserver:8081
+      #- OTS_WEBUI_ADDRESS=opentakserver-webui
+      #- CLIENT_MAX_BODY_SIZE=512M
+
     depends_on:
       opentakserver:
         condition: service_started

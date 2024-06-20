@@ -1,27 +1,29 @@
 #******************************************************
-#    WebUI
-#    Port: 80
+#   WebUI
+#   Port: 80
 #******************************************************
 server {
-
     listen 80;
-    client_max_body_size 512M;
+    server_name _;
+
+    client_max_body_size ${CLIENT_MAX_BODY_SIZE};
 
     #******************************************************
-    #       Docker Healthcheck
+    #       NGINX health
     #******************************************************
-    # location = /health {
-    #     access_log off;
-    #     add_header 'Content-Type' 'application/json';
-    #     return 200 '{"status":"healthy"}';
-    # }
+    location = /health {
+        access_log off;
+        #stub_status on;
+        add_header 'Content-Type' 'application/json';
+        return 200 '{"status":"healthy"}';
+    }
 
     #******************************************************
     #       OpenTakServer WebUI
     #******************************************************
     location / {
         include includes.d/proxy_params;
-        proxy_pass http://webui;
+        proxy_pass http://${WEBUI_ADDRESS};
     }
 
     #******************************************************
@@ -29,7 +31,7 @@ server {
     #******************************************************
     location /api {
         include includes.d/proxy_params;
-        proxy_pass http://opentakserver;
+        proxy_pass http://${OTS_ADDRESS};
     }
 
     location /socket.io {
@@ -38,7 +40,7 @@ server {
         proxy_buffering off;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "Upgrade";
-        proxy_pass http://opentakserver/socket.io;
+        proxy_pass http://${OTS_ADDRESS}/socket.io;
     }
 
 }

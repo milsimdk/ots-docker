@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -eu
+
+export WEBUI_ADDRESS=${OTS_WEBUI_ADDRESS:-opentakserver-webui}
+export OTS_ADDRESS=${OTS_ADDRESS:-'opentakserver:8081'}
+
+export CLIENT_MAX_BODY_SIZE=${CLIENT_MAX_BODY_SIZE:-512M}
+

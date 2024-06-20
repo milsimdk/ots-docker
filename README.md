@@ -39,7 +39,7 @@ environment:
     - DOCKER_OTS_MEDIAMTX_ENABLE=false
 ```
 
-### Whats supported for now
+## Whats supported for now
  - [x] Tak server
  - [x] Rabbitmq 
    - [x] MQTT
@@ -48,16 +48,15 @@ environment:
  - [ ] MediaMTX
  - [ ] Mumble
 
-### Requirements
+## Requirements
  - Docker must be installed
  - Docker compose v2 is used
  - Only tested locally on my Macbook (arm64), but should work on most Linux operating systems
+ - Custom OpenTakServer docker images used
+   - [OpenTakServer](https://github.com/milsimdk/ots-docker-image/pkgs/container/ots-docker-image)
+   - [OpenTakServer-WebUI](https://github.com/milsimdk/ots-ui-docker-image/pkgs/container/ots-ui-docker-image)
 
-##### Custom OpenTakServer docker images used
- - [OpenTakServer](https://github.com/milsimdk/ots-docker-image/pkgs/container/ots-docker-image)
- - [OpenTakServer-WebUI](https://github.com/milsimdk/ots-ui-docker-image/pkgs/container/ots-ui-docker-image)
-
-### How to use the MakeFile
+## How to use the MakeFile
 ```shell
 # Show help
 make

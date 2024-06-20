@@ -1,0 +1,4 @@
+server_tokens off;
+
+index index.html;
+root /usr/share/nginx/html;

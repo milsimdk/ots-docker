@@ -14,7 +14,7 @@ up: ## Start OpenTAKServer
 stop: ## Stop OpenTAKServer
 	docker compose stop
 
-down: ## Stop OpenTAKServer
+down: ## Take down OpenTAKServer
 	docker compose down
 
 restart: ## Restart OpenTAKServer
