@@ -25,7 +25,7 @@ logs: ## Logs for OpenTAKServer
 
 push:
 	git add .
-	git commit -m'Working-in-progress'
+	git commit -m'Work-in-progress'
 	git push
 
 dev-clean:

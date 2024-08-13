@@ -5,6 +5,7 @@ services:
     container_name: opentakserver
     hostname: opentakserver
     restart: unless-stopped
+    tty: true
     ports:
       - 127.0.0.1:8081:8081 # OTS listens on this port on the loopback interface for HTTP(S) requests
       - 0.0.0.0:8088:8088 # TCP CoT streaming port
@@ -13,7 +14,7 @@ services:
       - "/etc/timezone:/etc/timezone:ro"
       - "./persistent/ots:/app/ots"
     environment:
-      - DOCKER_OTS_MEDIAMTX_ENABLE=False
+      - DOCKER_OTS_MEDIAMTX_ENABLE=false
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -48,8 +49,6 @@ services:
       - "./persistent/nginx/templates:/etc/nginx/templates:ro"
     depends_on:
       opentakserver:
-        condition: service_started
-      opentakserver-webui:
         condition: service_healthy
 
   rabbitmq:

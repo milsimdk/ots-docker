@@ -32,76 +32,14 @@ newgrp docker
 
 ### Folder permissions
 If you get a `Permission denied` error it might because of folder permissions \
-The opentakserver has an internal user with PID/GID of 1000 \
-To fix it, either do `chmod -R 0777 persistent` or create a user with the PID/GID of 1000 \
-Check if a user exists with `id 1000`
-
-#### Check if a user with ID 1000 exists
+To fix it add your user id and group id in `compose.override.yaml` \
 ```shell
-id 1000
-```
-if you get "*id: 1000: no such user*" jump to [Create user](#create-user) \
-else run `chown -R 1000:1000 persistent`
+id
+cp compose.override.yaml-example compose.override.yaml
 
-#### Create user
-```shell
-sudo groupadd -g 1000 -r ots
-sudo useradd -u 1000 -g 1000 -m ots
-sudo usermod -aG docker ots
-# You can also add your own user to the docker group
-# sudo usermod -aG docker $USER
-# newgrp docker
-
-# cd to the ots-docker folder
-sudo chown -R 1000:1000 persistent
+# Change line 4 so it matches your folder owner id and group id 
 ```
 
-#### Permission denied: Quick and dirty solution
-the quick and dirty solution 
-```shell
-sudo chmod -R 0777 persistent
-```
-
-#### Permission denied: The sysadmin solution
-```shell
-# Add user to docker group
-sudo usermod -aG docker $USER
-newgrp docker
-
-# Get repos needed
-git clone git@github.com:milsimdk/ots-docker.git /opt/ots-docker
-git clone git@github.com:milsimdk/ots-docker-image.git && cd /opt/ots-docker-image
-
-# Fix user ID
-echo "---
-services:
-  opentakserver:
-    image: opentakserver:latest
-    build:
-      context: .
-      args:
-        - PGID=$(id -u $USER)
-        - PUID=$(id -g $USER)
-      tags:
-        - opentakserver:latest
-" > compose.override.yaml
-
-# Build local image of opentakserver
-docker compose build opentakserver
-
-# Change to the docker project
-cd /opt/ots-docker
-
-echo "---
-services:
-  opentakserver:
-    image: opentakserver:latest
-" > compose.override.yaml
-
-# Lets party
-docker compose up -d
-docker compose logs -f
-```
 
 ## Config changes 
 You can change config options by using 'environment' in the compose.override.yaml file \

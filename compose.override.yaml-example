@@ -1,14 +1,15 @@
 ---
 services:
   opentakserver:
+    user: UID:GID
     environment:
       - DOCKER_OTS_MEDIAMTX_ENABLE=False
 
-  nginx-proxy:
-    environment:
-      - OTS_ADDRESS=opentakserver:8081
-      - OTS_WEBUI_ADDRESS=opentakserver-webui
-      - CLIENT_MAX_BODY_SIZE=512M
+#  nginx-proxy:
+#    environment:
+#      - OTS_ADDRESS=opentakserver:8081
+#      - OTS_WEBUI_ADDRESS=opentakserver-webui
+#      - CLIENT_MAX_BODY_SIZE=512M
 
 #  rabbitmq:
 #    volumes:
