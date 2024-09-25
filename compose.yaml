@@ -75,11 +75,11 @@ services:
       - 0.0.0.0:1936:1936 # RTMPS video streams
       - 0.0.0.0:8000:8000/udp # RTP video streams
       - 0.0.0.0:8001:8001/udp # RTCP video streams
-      - 0.0.0.0:8189:8189/udp # WebRTC
+#      - 0.0.0.0:8189:8189/udp # WebRTC
       - 0.0.0.0:8322:8322 # RTSP(S) video streams
       - 0.0.0.0:8554:8554 # RTSP video streams
       - 0.0.0.0:8888:8888 # HLS video streams
-      - 0.0.0.0:8889:8889 # WebRTC streams
+#      - 0.0.0.0:8889:8889 # WebRTC streams
       - 0.0.0.0:8890:8890/udp # SRT streams
       - 127.0.0.1:9997:9997 # DEBUG
     volumes:

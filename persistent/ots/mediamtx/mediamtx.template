@@ -268,11 +268,11 @@ hlsDirectory: ''
 # Global settings -> WebRTC server
 
 # Enable publishing and reading streams with the WebRTC protocol.
-webrtc: yes
+webrtc: no
 # Address of the WebRTC HTTP listener.
 webrtcAddress: :8889
 # Enable TLS/HTTPS on the WebRTC server.
-webrtcEncryption: yes
+webrtcEncryption: no
 # Path to the server key.
 # This can be generated with:
 # openssl genrsa -out server.key 2048
