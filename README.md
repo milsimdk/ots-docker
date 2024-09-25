@@ -32,7 +32,7 @@ newgrp docker
 
 ### Folder permissions
 If you get a `Permission denied` error it might because of folder permissions \
-To fix it add your user id and group id in `compose.override.yaml` \
+To fix it add your user id and group id in `compose.override.yaml`
 ```shell
 id
 cp compose.override.yaml-example compose.override.yaml

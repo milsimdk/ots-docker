@@ -29,4 +29,4 @@ push:
 	git push
 
 dev-clean:
-	@find ./persistent/ots/ ! -name ".gitignore" -delete;
+	@find ./persistent/ots/ ! -name '.gitignore' ! -name 'mediamtx.yml' -delete;

@@ -3,7 +3,7 @@ services:
   opentakserver:
     user: UID:GID
     environment:
-      - DOCKER_OTS_MEDIAMTX_ENABLE=False
+#      - DOCKER_OTS_MEDIAMTX_ENABLE=False
 
 #  nginx-proxy:
 #    environment:

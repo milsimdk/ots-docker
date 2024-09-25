@@ -13,8 +13,6 @@ services:
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "./persistent/ots:/app/ots"
-    environment:
-      - DOCKER_OTS_MEDIAMTX_ENABLE=false
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -66,3 +64,28 @@ services:
       timeout: 30s
       retries: 3
 
+  mediamtx:
+    image: bluenviron/mediamtx:latest-ffmpeg
+    container_name: mediamtx
+    hostname: mediamtx
+    restart: unless-stopped
+#    network_mode: host
+    ports:
+      - 1935:1935 # RTMP video streams
+      - 1936:1936 # RTMPS video streams
+      - 8000:8000/udp # RTP video streams
+      - 8001:8001/udp # RTCP video streams
+      - 8189:8189/udp # WebRTC
+      - 8322:8322 # RTSP(S) video streams
+      - 8554:8554 # RTSP video streams
+      - 8888:8888 # HLS video streams
+      - 8889:8889 # WebRTC streams
+      - 8890:8890/udp # SRT streams
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "./persistent/mediamtx:/app/mediamtx"
+      - "./persistent/ots:/app/ots"
+      - "./persistent/ots/mediamtx/mediamtx.yml:/mediamtx.yml"
+    depends_on:
+      opentakserver:
+        condition: service_healthy
