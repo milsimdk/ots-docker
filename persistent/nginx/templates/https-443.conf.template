@@ -6,6 +6,9 @@ server {
     listen 443 ssl;
     server_name _;
 
+    resolver 127.0.0.11 valid=10s;
+    resolver_timeout 5s;
+
     client_max_body_size ${CLIENT_MAX_BODY_SIZE};
 
     # OpenTakServer certificates
@@ -19,6 +22,32 @@ server {
         proxy_pass http://${WEBUI_ADDRESS};
     }
 
+    #******************************************************
+    #       MediaMTX
+    #******************************************************
+    # Proxy WebRTC requests to MediaMTX
+    location ~ ^/webrtc(/?)(.*)$ {
+        include includes.d/proxy_params;
+        proxy_pass https://${MTX_ADDRESS}:8889/$2$is_args$args;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_redirect off;
+
+        client_max_body_size 0;
+    }
+
+    # Proxy HLS requests to MediaMTX
+    location ~ ^/hls(/?)(.*)$ {
+        include includes.d/proxy_params;
+        proxy_pass https://${MTX_ADDRESS}:8888/$2$is_args$args;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_redirect off;
+
+        client_max_body_size 0;
+    }
     #******************************************************
     #       OpenTakServer API
     #******************************************************
