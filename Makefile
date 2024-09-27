@@ -17,6 +17,9 @@ stop: ## Stop OpenTAKServer
 down: ## Take down OpenTAKServer
 	docker compose down
 
+pull: ## pull container images down
+	docker compose pull
+
 restart: ## Restart OpenTAKServer
 	docker compose restart opentakserver
 
