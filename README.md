@@ -54,7 +54,7 @@ It's also possible to just change them in the `persistent/ots/config.yml` file
    - [x] MQTT
  - [x] WebUI
  - [x] Meshtastic
- - [ ] MediaMTX
+ - [x] MediaMTX
  - [ ] Mumble
 
 ## Requirements

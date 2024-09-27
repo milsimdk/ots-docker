@@ -11,7 +11,6 @@ services:
       - 0.0.0.0:8088:8088 # TCP CoT streaming port
       - 0.0.0.0:8089:8089 # SSL CoT streaming port
     volumes:
-#      - "/etc/timezone:/etc/timezone:ro"
       - "./persistent/ots:/app/ots"
     depends_on:
       rabbitmq:
@@ -22,8 +21,6 @@ services:
     container_name: opentakserver-webui
     hostname: opentakserver-webui
     restart: unless-stopped
-#    volumes:
-#      - "/etc/timezone:/etc/timezone:ro"
 
   nginx-proxy:
     build:
@@ -42,7 +39,6 @@ services:
 
       - 0.0.0.0:8883:8883 # Proxy for MQTT / Meshtastic to Rabbitmq port 1883
     volumes:
-#      - "/etc/timezone:/etc/timezone:ro"
       - "./persistent/ots/ca:/app/ots/ca:ro"
       - "./persistent/nginx/templates:/etc/nginx/templates:ro"
     depends_on:
@@ -83,7 +79,6 @@ services:
       - 0.0.0.0:8890:8890/udp # SRT streams
       - 127.0.0.1:9997:9997 # DEBUG
     volumes:
-#      - "/etc/timezone:/etc/timezone:ro"
       - "./persistent/ots:/app/ots"
       - "./persistent/ots/mediamtx/mediamtx.yml:/mediamtx.yml"
     depends_on:
