@@ -9,22 +9,22 @@ help: ## This help.
 .DEFAULT_GOAL := help
 
 up: ## Start OpenTAKServer
-	docker compose up -d
+	docker-compose up -d
 
 stop: ## Stop OpenTAKServer
-	docker compose stop
+	docker-compose stop
 
 down: ## Take down OpenTAKServer
-	docker compose down
+	docker-compose down
 
 pull: ## pull container images down
-	docker compose pull
+	docker-compose pull
 
 restart: ## Restart OpenTAKServer
-	docker compose restart opentakserver
+	docker-compose restart opentakserver
 
 logs: ## Logs for OpenTAKServer
-	docker compose logs -f --tail=100
+	docker-compose logs -f --tail=100
 
 push:
 	git add .
