@@ -61,7 +61,7 @@ services:
       retries: 3
 
   mediamtx:
-    image: bluenviron/mediamtx:latest-ffmpeg
+    image: bluenviron/mediamtx:1.10.0-ffmpeg
     container_name: mediamtx
     hostname: mediamtx
     restart: unless-stopped
