@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -eu
+set -e
 
 export WEBUI_ADDRESS=${OTS_WEBUI_ADDRESS:-'opentakserver-webui'}
 export OTS_ADDRESS=${OTS_ADDRESS:-'opentakserver:8081'}
