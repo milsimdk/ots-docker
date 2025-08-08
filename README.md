@@ -56,6 +56,7 @@ It's also possible to just change them in the `persistent/ots/config.yml` file
  - [x] Meshtastic
  - [x] MediaMTX
  - [ ] Mumble
+ - [ ] SSL / Let's Encrypt
 
 ## Requirements
  - Docker must be installed

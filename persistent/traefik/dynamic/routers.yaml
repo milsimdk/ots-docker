@@ -1,0 +1,14 @@
+#http:
+#  routers:
+    # Do not allow certificate enrollment on ports other then 8446
+#    opentakserver-deny:
+#      rule: "Path(`/Marti/api/tls`)"
+#      service: noop@internal
+      # entryPoints:
+      #   - "web"
+      #   - "websecure"
+      #   - "traefik"
+      #   - "takapi"
+      #   - "takapisecure"
+      #   - "takstreaming"
+      #   - "takstreamingsecure"

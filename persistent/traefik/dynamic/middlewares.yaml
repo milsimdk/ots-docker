@@ -1,0 +1,6 @@
+http:
+  middlewares:
+    ipallowlist-local:
+      ipAllowList:
+        sourceRange:
+          - "127.0.0.1/32"

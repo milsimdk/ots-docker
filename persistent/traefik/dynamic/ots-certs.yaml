@@ -1,0 +1,17 @@
+tls:
+  options:
+    ots:
+      clientAuth:
+        caFiles:
+          - "/app/ots/ca/ca.pem"
+        clientAuthType: RequireAndVerifyClientCert
+
+  stores:
+    default:
+      defaultCertificate:
+        certFile: "/app/ots/ca/certs/opentakserver/opentakserver.pem"
+        keyFile: "/app/ots/ca/certs/opentakserver/opentakserver.nopass.key"
+
+  certificates:
+    - certFile: "/app/ots/ca/certs/opentakserver/opentakserver.pem"
+      keyFile: "/app/ots/ca/certs/opentakserver/opentakserver.nopass.key"

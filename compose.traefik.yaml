@@ -1,0 +1,182 @@
+---
+services:
+  traefik-proxy:
+    image: traefik:v3.5
+    container_name: traefik-proxy
+    hostname: traefik-proxy
+    restart: unless-stopped
+    ports:
+      - 0.0.0.0:80:80     # HTTP Web UI
+      - 0.0.0.0:443:443   # HTTPS Web UI
+      - 0.0.0.0:9000:9000 # The Traefik Web UI
+
+      - 0.0.0.0:8080:8080 # HTTP API requests to OpenTAKServer port 8081
+      - 0.0.0.0:8443:8443 # HTTPS API requests to OpenTAKServer port 8081
+
+      - 0.0.0.0:8446:8446 # Proxy for certificate enrollment to OpenTAKServer port 8081
+
+      - 0.0.0.0:8088:8088 # TCP CoT streaming port
+      - 0.0.0.0:8089:8089 # SSL CoT streaming port
+
+      - 0.0.0.0:8883:8883 # Proxy for MQTT / Meshtastic to Rabbitmq port 1883
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./persistent/ots/ca:/app/ots/ca:ro"
+      - "./persistent/traefik:/etc/traefik/"
+    healthcheck:
+      test: traefik healthcheck --ping
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      ots:
+        condition: service_healthy
+
+  ots:
+    image: ghcr.io/milsimdk/ots-docker-image:latest
+    container_name: ots
+    hostname: ots
+    restart: unless-stopped
+    tty: true
+    labels:
+      - "traefik.enable=true"
+
+      # Web UI and proxy for HTTP(s) UI (80,443) API requests to OpenTAKServer port 8081
+      - "traefik.http.routers.ots-api.rule=PathPrefix(`/api`) || PathPrefix(`/socket.io`)"
+      - "traefik.http.routers.ots-api.entrypoints=websecure,web"
+      - "traefik.http.routers.ots-api.service=ots"
+
+      # Web UI and proxy for HTTP(s) requests to OpenTAKServer port 8081
+      #- "traefik.http.routers.ots-socket.rule=PathPrefix(`/socket.io`)"
+      #- "traefik.http.routers.ots-socket.entrypoints=websecure,web"
+      #- "traefik.http.routers.ots-socket.service=ots"
+
+      # Web UI and proxy for HTTP(s) API (8080, 8443) requests to OpenTAKServer port 8081
+      - "traefik.http.routers.ots-takapi.rule=PathPrefix(`/Marti`)"
+      - "traefik.http.routers.ots-takapi.entrypoints=takapi"
+      - "traefik.http.routers.ots-takapi.service=ots"
+
+      # Web UI and proxy for HTTPS API requests to OpenTAKServer port 8081
+      - "traefik.http.routers.ots-takapisecure.rule=PathPrefix(`/Marti`)"
+      - "traefik.http.routers.ots-takapisecure.entrypoints=takapisecure"
+      - "traefik.http.routers.ots-takapisecure.tls.options=ots@file"
+      - "traefik.http.routers.ots-takapisecure.service=ots"
+
+      # Web UI and proxy for certificate enrollment (8446) to OpenTAKServer port 8081
+      - "traefik.http.routers.ots-takace.rule=PathPrefix(`/Marti/api/tls`)"
+      - "traefik.http.routers.ots-takace.entrypoints=takace"
+      - "traefik.http.routers.ots-takace.service=ots"
+      - "traefik.http.routers.ots-takace.priority=10000"
+
+      # OTS listens on this port on the loopback interface for HTTP(S) requests
+      - "traefik.http.services.ots.loadbalancer.server.port=8081"
+
+    volumes:
+      - "./persistent/ots:/app/ots"
+    depends_on:
+      ots-rabbitmq:
+        condition: service_healthy
+
+  ots-cot_parser:
+    image: ghcr.io/milsimdk/ots-docker-image:latest
+    container_name: ots-cot_parser
+    hostname: ots-cot_parser
+    restart: unless-stopped
+    tty: true
+    command: python3 /app/.opentakserver_venv/bin/cot_parser
+    healthcheck:
+      test: ["CMD", "python3",  "-c", "import psutil; print(psutil.pid_exists(1))"]
+    volumes:
+      - "./persistent/ots:/app/ots"
+    depends_on:
+      ots:
+        condition: service_healthy
+
+  ots-eud_handler:
+    image: ghcr.io/milsimdk/ots-docker-image:latest
+    container_name: ots-eud_handler
+    hostname: ots-eud_handler
+    restart: unless-stopped
+    tty: true
+    command: python3 /app/.opentakserver_venv/bin/eud_handler
+    healthcheck:
+      test: ["CMD", "python3",  "-c", "import psutil; print(psutil.pid_exists(1))"]
+    labels:
+      - "traefik.enable=true"
+
+      # TCP CoT streaming port
+      - "traefik.tcp.routers.ots-takstreaming.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.ots-takstreaming.entrypoints=takstreaming"
+      - "traefik.tcp.routers.ots-takstreaming.service=takstreaming"
+      - "traefik.tcp.services.takstreaming.loadbalancer.server.port=8088"
+
+      # SSL CoT streaming port
+      - "traefik.tcp.routers.ots-takstreamingsecure.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.ots-takstreamingsecure.tls=true"
+      - "traefik.tcp.routers.ots-takstreamingsecure.tls.options=ots@file"
+      - "traefik.tcp.routers.ots-takstreamingsecure.entrypoints=takstreamingsecure"
+      - "traefik.tcp.routers.ots-takstreamingsecure.service=takstreamingsecure"
+      - "traefik.tcp.services.takstreamingsecure.loadbalancer.server.port=8088"
+    volumes:
+      - "./persistent/ots:/app/ots"
+    depends_on:
+      ots:
+        condition: service_healthy
+
+  ots-webui:
+    image: ghcr.io/milsimdk/ots-ui-docker-image:latest
+    container_name: ots-webui
+    hostname: ots-webui
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ots-webui.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.ots-webui.entrypoints=websecure,web"
+
+  ots-rabbitmq:
+    image: rabbitmq:latest
+    container_name: ots-rabbitmq
+    hostname: rabbitmq
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.rabbitmq.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.rabbitmq.entryPoints=rabbitmq"
+      - "traefik.tcp.routers.rabbitmq.tls=true"
+      - "traefik.tcp.routers.rabbitmq.service=rabbitmq"
+      - "traefik.tcp.services.rabbitmq.loadbalancer.server.port=1883"
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "./persistent/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro"
+      - "./persistent/rabbitmq/99-opentakserver.conf:/etc/rabbitmq/conf.d/99-opentakserver.conf:ro"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+#   mediamtx:
+#     image: bluenviron/mediamtx:1.13.0-ffmpeg
+#     container_name: mediamtx
+#     hostname: mediamtx
+#     restart: unless-stopped
+# #    network_mode: host
+#     ports:
+#       - 0.0.0.0:1935:1935 # RTMP video streams
+#       - 0.0.0.0:1936:1936 # RTMPS video streams
+#       - 0.0.0.0:8000:8000/udp # RTP video streams
+#       - 0.0.0.0:8001:8001/udp # RTCP video streams
+# #      - 0.0.0.0:8189:8189/udp # WebRTC
+#       - 0.0.0.0:8322:8322 # RTSP(S) video streams
+#       - 0.0.0.0:8554:8554 # RTSP video streams
+#       - 0.0.0.0:8888:8888 # HLS video streams
+# #      - 0.0.0.0:8889:8889 # WebRTC streams
+#       - 0.0.0.0:8890:8890/udp # SRT streams
+#       - 127.0.0.1:9997:9997 # DEBUG
+#     volumes:
+#       - "./persistent/ots:/app/ots"
+#       - "./persistent/ots/mediamtx/mediamtx.yml:/mediamtx.yml"
+#     depends_on:
+#       opentakserver:
+#         condition: service_healthy

@@ -1,0 +1,68 @@
+## Static configuration
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: httpChallenge
+  traefik:
+    address: ":9000"
+  rabbitmq:
+    address: ":8883"
+  takapi:
+    address: ":8080"
+  takapisecure:
+    address: ":8443"
+    http:
+      tls:
+        options: ots@file
+  takace:
+    address: ":8446"
+    http:
+      tls:
+        certResolver: httpChallenge
+  takstreaming:
+    address: ":8088"
+  takstreamingsecure:
+    address: ":8089"
+
+certificatesResolvers:
+  ovh:
+    acme:
+      email: CHANGE_ME@CHANGE_ME.CHANGE_ME
+      storage: /etc/traefik/acme/ovh.json
+      dnsChallenge:
+        provider: ovh
+      caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+
+  httpChallenge:
+    acme:
+      email: CHANGE_ME@CHANGE_ME.CHANGE_ME
+      storage: /etc/traefik/acme/httpchallenge.json
+      httpChallenge:
+        entryPoint: web
+      caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+ping: {}
+api:
+  insecure: true
+  disableDashboardAd: true
+
+providers:
+  docker:
+    exposedByDefault: false
+    endpoint: "unix:///var/run/docker.sock"
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+log:
+  level: INFO
+
+accessLog: {}

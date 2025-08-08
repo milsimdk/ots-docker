@@ -9,19 +9,19 @@ help: ## This help.
 .DEFAULT_GOAL := help
 
 up: ## Start OpenTAKServer
-	docker compose up -d
+	docker compose -f compose.nginx.yaml up -d
 
 stop: ## Stop OpenTAKServer
-	docker compose stop
+	docker compose -f compose.nginx.yaml stop
 
 down: ## Take down OpenTAKServer
-	docker compose down
+	docker compose -f compose.nginx.yaml down
 
 pull: ## pull container images down
-	docker compose pull
+	docker compose -f compose.nginx.yaml pull
 
 restart: ## Restart OpenTAKServer
-	docker compose restart opentakserver
+	docker compose -f compose.nginx.yaml restart ots
 
 logs: ## Logs for OpenTAKServer
 	docker compose logs -f --tail=100
