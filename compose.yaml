@@ -1,5 +1,8 @@
 ---
 services:
+# ****************************************
+# OpenTakServer - Cot Server
+# ****************************************
   ots:
     user: "${UID:-0}:${GID:-0}"
     image: ghcr.io/milsimdk/ots-docker-image:latest
@@ -19,6 +22,11 @@ services:
       ots-db:
         condition: service_healthy
 
+# ****************************************
+# OpenTakServer - Help Services
+# - cot_parser
+# - eud_handler
+# ****************************************
   ots-cot_parser: &ots-helper
     image: ghcr.io/milsimdk/ots-docker-image:latest
     container_name: ots-cot_parser
@@ -34,6 +42,7 @@ services:
     depends_on:
       ots:
         condition: service_healthy
+
   ots-eud_handler:
     <<: *ots-helper
     container_name: ots-eud_handler
@@ -41,6 +50,7 @@ services:
     command: python3 /app/.opentakserver_venv/bin/eud_handler --no-ssl
     ports:
       - 0.0.0.0:8088:8088 # TCP CoT streaming port
+
   ots-eud_handler-ssl:
     <<: *ots-helper
     container_name: ots-eud_handler-ssl
@@ -49,31 +59,11 @@ services:
     ports:
       - 0.0.0.0:8089:8089 # SSL CoT streaming port
 
-  ots-webui:
-    image: ghcr.io/milsimdk/ots-ui-docker-image:latest
-    container_name: ots-webui
-    hostname: opentakserver-webui
-    restart: unless-stopped
-
-  ots-db:
-    build:
-      context: .
-      dockerfile: persistent/db/Dockerfile
-    container_name: ots-db
-    hostname: ots-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD:-POSTGRESQL_PASSWORD}
-      POSTGRES_USER: ots
-      POSTGRES_DB: ots
-    volumes:
-      - "./persistent/db:/var/lib/postgresql"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d ots -U ots"]
-      interval: 1s
-      timeout: 5s
-      retries: 10
-
+# ****************************************
+# OpenTakServer - Web services
+# - Nginx Proxy
+# - Web UI
+# ****************************************
   nginx-proxy:
     build:
       context: .
@@ -96,6 +86,35 @@ services:
     depends_on:
       ots:
         condition: service_healthy
+  ots-webui:
+    image: ghcr.io/milsimdk/ots-ui-docker-image:latest
+    container_name: ots-webui
+    hostname: opentakserver-webui
+    restart: unless-stopped
+
+# ****************************************
+# OpenTakServer - Database services
+# - Postgresql / Postgis
+# - Rabbitmq
+# ****************************************
+  ots-db:
+    build:
+      context: .
+      dockerfile: persistent/db/Dockerfile
+    container_name: ots-db
+    hostname: ots-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD:-POSTGRESQL_PASSWORD}
+      POSTGRES_USER: ots
+      POSTGRES_DB: ots
+    volumes:
+      - "./persistent/db:/var/lib/postgresql"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ots -U ots"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:latest
@@ -111,6 +130,10 @@ services:
       timeout: 30s
       retries: 3
 
+# ****************************************
+# OpenTakServer - Other services
+# - Mediamtx - Video streaming
+# ****************************************
   mediamtx:
     profiles: ["mediamtx"]
     image: bluenviron/mediamtx:1.13.0-ffmpeg
