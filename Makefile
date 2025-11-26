@@ -9,19 +9,19 @@ help: ## This help.
 .DEFAULT_GOAL := help
 
 up: ## Start OpenTAKServer
-	docker compose -f compose.nginx.yaml up -d
+	docker compose up -d
 
 stop: ## Stop OpenTAKServer
-	docker compose -f compose.nginx.yaml stop
+	docker compose stop
 
 down: ## Take down OpenTAKServer
-	docker compose -f compose.nginx.yaml down
+	docker compose down
 
 pull: ## pull container images down
-	docker compose -f compose.nginx.yaml pull
+	docker compose pull
 
 restart: ## Restart OpenTAKServer
-	docker compose -f compose.nginx.yaml restart ots
+	docker compose restart ots
 
 logs: ## Logs for OpenTAKServer
 	docker compose logs -f --tail=100
@@ -33,3 +33,8 @@ push:
 
 dev-clean:
 	@find ./persistent/ots/ ! -name '.gitignore' ! -name 'mediamtx.template' -delete;
+	@find ./persistent/db/18/ ! -name '.gitignore' -delete;
+
+dev-test-ssl:
+	curl -k https://localhost:8089/Marti/
+#	curl -k --cert persistent/ots/ca/certs/opentakserver/opentakserver.pem --key persistent/ots/ca/certs/opentakserver/opentakserver.nopass.key --cacert persistent/ots/ca/ca.pem https://localhost:8089/Marti/

@@ -1,7 +1,7 @@
 ---
 services:
   opentakserver:
-    user: UID:GID
+    user: "${UID:-1000}:${GID:-1000}"
     environment:
 #      - DOCKER_OTS_MEDIAMTX_ENABLE=False
 

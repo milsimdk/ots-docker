@@ -20,7 +20,6 @@ services:
 
       - 0.0.0.0:8883:8883 # Proxy for MQTT / Meshtastic to Rabbitmq port 1883
     volumes:
-      - "/etc/timezone:/etc/timezone:ro"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./persistent/ots/ca:/app/ots/ca:ro"
       - "./persistent/traefik:/etc/traefik/"
@@ -39,38 +38,39 @@ services:
     hostname: ots
     restart: unless-stopped
     tty: true
+    ports:
+      - 127.0.0.1:8081:8081 # OTS listens on this port on the loopback interface for HTTP(S) requests
     labels:
       - "traefik.enable=true"
 
       # Web UI and proxy for HTTP(s) UI (80,443) API requests to OpenTAKServer port 8081
-      - "traefik.http.routers.ots-api.rule=PathPrefix(`/api`) || PathPrefix(`/socket.io`)"
+      - "traefik.http.routers.ots-api.rule=Host(`${PROXY_DOMAIN}`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))"
       - "traefik.http.routers.ots-api.entrypoints=websecure,web"
       - "traefik.http.routers.ots-api.service=ots"
 
-      # Web UI and proxy for HTTP(s) requests to OpenTAKServer port 8081
-      #- "traefik.http.routers.ots-socket.rule=PathPrefix(`/socket.io`)"
-      #- "traefik.http.routers.ots-socket.entrypoints=websecure,web"
-      #- "traefik.http.routers.ots-socket.service=ots"
-
-      # Web UI and proxy for HTTP(s) API (8080, 8443) requests to OpenTAKServer port 8081
+      # Web UI and proxy for HTTP(s) API (8080) requests to OpenTAKServer port 8081
       - "traefik.http.routers.ots-takapi.rule=PathPrefix(`/Marti`)"
       - "traefik.http.routers.ots-takapi.entrypoints=takapi"
       - "traefik.http.routers.ots-takapi.service=ots"
 
-      # Web UI and proxy for HTTPS API requests to OpenTAKServer port 8081
-      - "traefik.http.routers.ots-takapisecure.rule=PathPrefix(`/Marti`)"
+      # Web UI and proxy for HTTP(s) API (8443) requests to OpenTAKServer port 8081
+      - "traefik.http.routers.ots-takapisecure.rule=Host(`${PROXY_DOMAIN}`) && PathPrefix(`/Marti`)"
       - "traefik.http.routers.ots-takapisecure.entrypoints=takapisecure"
-      - "traefik.http.routers.ots-takapisecure.tls.options=ots@file"
+      - "traefik.http.routers.ots-takapisecure.tls.options=ots-mTLS@file"
+      - "traefik.http.routers.ots-takapisecure.tls.domains.main=opentakserver"
       - "traefik.http.routers.ots-takapisecure.service=ots"
 
       # Web UI and proxy for certificate enrollment (8446) to OpenTAKServer port 8081
-      - "traefik.http.routers.ots-takace.rule=PathPrefix(`/Marti/api/tls`)"
+      - "traefik.http.routers.ots-takace.rule=Host(`${PROXY_DOMAIN}`) && PathPrefix(`/Marti/api/tls`)"
       - "traefik.http.routers.ots-takace.entrypoints=takace"
       - "traefik.http.routers.ots-takace.service=ots"
       - "traefik.http.routers.ots-takace.priority=10000"
 
       # OTS listens on this port on the loopback interface for HTTP(S) requests
       - "traefik.http.services.ots.loadbalancer.server.port=8081"
+
+      - "traefik.http.services.otssecure.loadbalancer.server.port=8081"
+      - "traefik.http.services.otssecure.loadbalancer.serversTransport=opentakserver@file"
 
     volumes:
       - "./persistent/ots:/app/ots"
@@ -114,7 +114,7 @@ services:
       # SSL CoT streaming port
       - "traefik.tcp.routers.ots-takstreamingsecure.rule=HostSNI(`*`)"
       - "traefik.tcp.routers.ots-takstreamingsecure.tls=true"
-      - "traefik.tcp.routers.ots-takstreamingsecure.tls.options=ots@file"
+      - "traefik.tcp.routers.ots-takstreamingsecure.tls.options=ots-mTLS@file"
       - "traefik.tcp.routers.ots-takstreamingsecure.entrypoints=takstreamingsecure"
       - "traefik.tcp.routers.ots-takstreamingsecure.service=takstreamingsecure"
       - "traefik.tcp.services.takstreamingsecure.loadbalancer.server.port=8088"
@@ -131,8 +131,8 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ots-webui.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.ots-webui.entrypoints=websecure,web"
+      - "traefik.http.routers.ots-webui.rule=Host(`${PROXY_DOMAIN}`) || PathPrefix(`/`)"
+      - "traefik.http.routers.ots-webui.entrypoints=websecure, web"
 
   ots-rabbitmq:
     image: rabbitmq:latest

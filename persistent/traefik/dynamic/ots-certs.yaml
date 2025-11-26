@@ -1,10 +1,17 @@
+http:
+  serversTransports:
+    opentakserver:
+      serverName: "opentakserver"
+      rootCAs:
+        - "/app/ots/ca/ca.pem"
+
 tls:
   options:
-    ots:
+    ots-mTLS:
       clientAuth:
+        clientAuthType: RequireAndVerifyClientCert
         caFiles:
           - "/app/ots/ca/ca.pem"
-        clientAuthType: RequireAndVerifyClientCert
 
   stores:
     default:

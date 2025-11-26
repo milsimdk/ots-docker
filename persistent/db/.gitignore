@@ -1,0 +1,7 @@
+# Ignore everything in this directory
+*
+# But do not ignore this .gitignore file
+!initdb-postgis.sh
+!update-postgis.sh
+!Dockerfile
+!.gitignore

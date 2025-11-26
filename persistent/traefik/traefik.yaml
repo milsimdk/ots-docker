@@ -6,40 +6,43 @@ entryPoints:
     address: ":443"
     http:
       tls:
-        certResolver: httpChallenge
+        certResolver: dnschallenge
   traefik:
     address: ":9000"
   rabbitmq:
-    address: ":8883"
+    address: ":8883/tcp"
   takapi:
-    address: ":8080"
+    address: ":8080/tcp"
   takapisecure:
-    address: ":8443"
+    address: ":8443/tcp"
     http:
       tls:
         options: ots@file
   takace:
-    address: ":8446"
+    address: ":8446/tcp"
     http:
       tls:
-        certResolver: httpChallenge
+        certResolver: dnschallenge
   takstreaming:
-    address: ":8088"
+    address: ":8088/tcp"
   takstreamingsecure:
-    address: ":8089"
+    address: ":8089/tcp"
 
 certificatesResolvers:
-  ovh:
-    acme:
-      email: CHANGE_ME@CHANGE_ME.CHANGE_ME
-      storage: /etc/traefik/acme/ovh.json
-      dnsChallenge:
-        provider: ovh
-      caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+  #dnschallenge:
+  #  acme:
+  #    storage: /etc/traefik/acme/dnsChallenge.json
+  #    dnsChallenge:
+  #      # https://doc.traefik.io/traefik/https/acme/#providers
+  #      #provider: cloudflare
+  #      delayBeforeCheck: "20"
+  #      resolvers:
+  #        - "1.1.1.1:53"
+  #        - "8.8.8.8:53"
+  #    caServer: https://acme-staging-v02.api.letsencrypt.org/directory
 
-  httpChallenge:
+  httpchallenge:
     acme:
-      email: CHANGE_ME@CHANGE_ME.CHANGE_ME
       storage: /etc/traefik/acme/httpchallenge.json
       httpChallenge:
         entryPoint: web
@@ -63,6 +66,7 @@ providers:
     watch: true
 
 log:
-  level: INFO
+  #level: INFO
+  level: DEBUG
 
 accessLog: {}
